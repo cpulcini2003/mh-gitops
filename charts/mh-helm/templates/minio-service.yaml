@@ -1,0 +1,21 @@
+---
+# templates/minio-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: minio-svc
+  namespace: {{ .Values.customerId }}
+spec:
+  selector:
+    app: minio
+    customer: {{ .Values.customerId }}
+  ports:
+    - name: api
+      protocol: TCP
+      port: 9000
+      targetPort: 9000
+    - name: console
+      protocol: TCP
+      port: 9001
+      targetPort: 9001
+  type: LoadBalancer

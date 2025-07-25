@@ -1,0 +1,21 @@
+# apps/org1/helmrelease.yaml
+apiVersion: helm.toolkit.fluxcd.io/v2beta1
+kind: HelmRelease
+metadata:
+  name: mh-helm-org1
+  namespace: default
+spec:
+  releaseName: mh-helm-org1
+  chart:
+    spec:
+      # Path to the local chart folder inside the Git repo
+      chart: "./mh-helm"
+      # Reference the GitRepository source where the chart lives
+      sourceRef:
+        kind: GitRepository
+        name: mh-gitops
+        namespace: flux-system
+      interval: 1m
+  values:
+    organizationName: org1
+    someOtherParam: value1

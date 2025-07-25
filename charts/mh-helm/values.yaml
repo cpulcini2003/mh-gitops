@@ -1,0 +1,21 @@
+customerId: "matchere"
+replicaCount: 1
+image: ""
+
+service:
+  port: 8080
+
+postgres:
+  user: cpu
+  password: password
+  database: mydatabase
+
+minio:
+  endpoint: http://minio-svc:9000
+  accesskey: minioadmin
+  secretkey: immagini2025
+  bucket: matchere
+
+imagePullSecretName: dockerhub-secret
+
+

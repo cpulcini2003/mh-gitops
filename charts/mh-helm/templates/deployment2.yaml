@@ -1,0 +1,75 @@
+---
+# templates/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mhbackend-ms2
+  namespace: {{ .Values.customerId }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: mhbackend-ms2
+      customer: {{ .Values.customerId }}
+  template:
+    metadata:
+      labels:
+        app: mhbackend-ms2
+        customer: {{ .Values.customerId }}
+    spec:
+      imagePullSecrets:
+        - name: {{ .Values.imagePullSecretName }}
+      initContainers:
+        - name: wait-for-services
+          image: busybox
+          command:
+            - sh
+            - -c
+            - |
+              echo "Waiting for Postgres..."
+              until nc -z postgres-db1-svc 5432; do sleep 2; done
+              echo "Waiting for Minio..."
+              until nc -z minio-svc 9001; do sleep 2; done
+      containers:
+        - name: mhbackend-ms2
+          image: "{{ .Values.image }}"
+          ports:
+            - containerPort: {{ .Values.service.port }}
+          env:
+            - name: SPRING_POSTGRES_USER
+              valueFrom:
+                secretKeyRef:
+                  name: postgres1-secret
+                  key: POSTGRES_USER
+            - name: SPRING_POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres1-secret
+                  key: POSTGRES_PASSWORD
+            - name: SPRING_POSTGRES_DB
+              valueFrom:
+                secretKeyRef:
+                  name: postgres1-secret
+                  key: POSTGRES_DB
+            - name: SPRING_POSTGRES_URL
+              value: r2dbc:postgresql://postgres-db1-svc.{{ .Values.customerId }}.svc.cluster.local:5432/$(SPRING_POSTGRES_DB)
+            - name: MINIO_ENDPOINT
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_ENDPOINT
+            - name: MINIO_ACCESSKEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_ACCESSKEY
+            - name: MINIO_SECRETKEY
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_SECRETKEY
+            - name: MINIO_BUCKET
+              valueFrom:
+                secretKeyRef:
+                  name: minio-secret
+                  key: MINIO_BUCKET

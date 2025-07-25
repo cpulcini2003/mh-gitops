@@ -1,0 +1,19 @@
+---
+# templates/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: mhbackend-svc
+  namespace: {{ .Values.customerId }}
+  labels:
+    app: mhbackend
+    customer: {{ .Values.customerId }}
+spec:
+  selector:
+    app: mhbackend
+    customer: {{ .Values.customerId }}
+  ports:
+    - protocol: TCP
+      port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+  type: LoadBalancer

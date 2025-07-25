@@ -1,0 +1,15 @@
+---
+# templates/postgres-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db1-svc
+  namespace: {{ .Values.customerId }}
+spec:
+  selector:
+    app: postgres
+    customer: {{ .Values.customerId }}
+  ports:
+    - protocol: TCP
+      port: 5432
+      targetPort: 5432

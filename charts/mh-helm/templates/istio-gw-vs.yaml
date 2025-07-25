@@ -1,0 +1,44 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: mh-gateway
+  namespace: {{ .Values.customerId }}
+spec:
+  selector:
+    app: istio-ingressgateway
+    istio: ingressgateway
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "api.{{ .Values.customerId }}.mydomain.com"
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: mhbackend-route
+  namespace: {{ .Values.customerId }}
+spec:
+  hosts:
+  - "api.{{ .Values.customerId }}.mydomain.com"
+  gateways:
+  - mh-gateway
+  http:
+  - match:
+    - uri:
+        prefix: /utils
+    - uri:
+        prefix: /api
+    - uri:
+        prefix: /ws
+    route:
+    - destination:
+        host: mhbackend-svc.{{ .Values.customerId }}.svc.cluster.local
+        port:
+          number: 8080
+
+
+
+#--- kubectl get gateway.networking.istio.io -n org123

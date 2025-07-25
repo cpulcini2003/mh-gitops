@@ -1,0 +1,33 @@
+---
+# templates/postgres-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-db1
+  namespace: {{ .Values.customerId }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+      customer: {{ .Values.customerId }}
+  template:
+    metadata:
+      labels:
+        app: postgres
+        customer: {{ .Values.customerId }}
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:15-alpine
+          envFrom:
+            - secretRef:
+                name: postgres1-secret
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - mountPath: /var/lib/postgresql/data
+              name: postgres-data
+      volumes:
+        - name: postgres-data
+          emptyDir: {}
